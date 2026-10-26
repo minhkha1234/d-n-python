@@ -1,5 +1,16 @@
 """Exercise 01: imports, modules and main guard."""
 
-# TODO: import choose_action từ bot_course.core.
-# TODO: chỉ gọi function bên trong main().
-# TODO: thêm guard if __name__ == "__main__".
+from bot_course.core import choose_action
+
+
+def main() -> None:
+    """Import and use the bot decision function."""
+    position = 1
+    goal = 4
+
+    action = choose_action(position, goal)
+    print(action)
+
+
+if __name__ == "__main__":
+    main()
