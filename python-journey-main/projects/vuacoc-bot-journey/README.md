@@ -65,23 +65,18 @@ python -m pip install --group dev
 
 ### Usage
 
-Chạy bot đơn lẻ:
+Chạy các lệnh sau từ repository root. Do bot dùng relative import trong package,
+hãy chuyển vào thư mục project rồi chạy bằng module:
 
 ```bash
-python projects/vuacoc-bot-journey/student_bot/bot.py
+cd projects/vuacoc-bot-journey
+python -m student_bot.bot
+python local_arena/tournament_cli.py
+python -m pytest tests -q
 ```
 
-Chạy tournament local với ba baseline ở cả hai vị trí A/B:
-
-```bash
-python projects/vuacoc-bot-journey/local_arena/tournament_cli.py
-```
-
-Chạy tests:
-
-```bash
-python -m pytest projects/vuacoc-bot-journey/tests -q
-```
+Tournament so sánh bot với ba baseline ở cả hai vị trí A/B. Chạy tests và
+tournament trước khi nộp, rồi ghi kết quả đã quan sát vào báo cáo.
 
 Chi tiết cách đánh giá nằm ở [EVALUATION.md](EVALUATION.md); bản trình bày
 capstone nằm ở [CAPSTONE_REPORT.md](CAPSTONE_REPORT.md). Việc sử dụng AI được
