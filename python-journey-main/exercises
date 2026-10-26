@@ -1,1 +1,29 @@
 
+class DienThoai:
+    # Hàm khởi tạo
+    def __init__(self, MaMay, TenMay, HangSanXuat, DungLuongPin, GiaBan):
+        self.MaMay = MaMay
+        self.TenMay = TenMay
+        self.HangSanXuat = HangSanXuat
+        self.DungLuongPin = DungLuongPin
+        self.GiaBan = GiaBan
+
+    # Phương thức hiển thị thông tin điện thoại
+    def thongtindienthoai(self):
+        print("Mã máy:", self.MaMay)
+        print("Tên máy:", self.TenMay)
+        print("Hãng sản xuất:", self.HangSanXuat)
+        print("Dung lượng pin:", self.DungLuongPin, "mAh")
+        print("Giá bán:", format(self.GiaBan, ",").replace(",", "."), "VNĐ")
+        print("-" * 40)
+
+
+# Tạo 2 đối tượng điện thoại
+DT01 = DienThoai("DT01", "iPhone 15 Pro", "Apple", 3274, 28990000)
+
+DT02 = DienThoai("DT02", "Galaxy S24 Ultra", "Samsung", 5000, 29990000)
+
+# Hiển thị thông tin
+DT01.thongtindienthoai()
+DT02.thongtindienthoai()
+
