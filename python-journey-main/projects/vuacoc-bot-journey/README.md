@@ -39,7 +39,7 @@ Student Bot → Local Arena → Baseline Bots → Match → Replay → Evaluatio
 
 - [Local Arena](local_arena/README.md) sở hữu match loop và teaching contract.
 - [Baseline bots](baselines/README.md) cung cấp đúng ba policy minh bạch.
-- [Student Bot](student_bot/README.md) là starter xuyên khóa.
+- [Student Bot](student_bot/README.md) mô tả interface của bot.
 
 ```text
 COURSE_LOCAL_ARENA = YES
@@ -47,6 +47,45 @@ VUACOC_PRODUCTION_COMPATIBILITY = NOT_CLAIMED
 NETWORK_CALLS = 0
 SECRETS = 0
 ```
+
+## Week 15 capstone — setup, usage and tests
+
+Week 15 hoàn thiện một bot chạy local, có strategy thay thế được, kiểm thử và
+báo cáo tournament. Bot mặc định đi về goal và `wait` khi đã tới goal.
+Strategy kiểm tra state và báo `ValueError` nếu dữ liệu đầu vào sai.
+
+### Setup
+
+Yêu cầu Python 3.12 trở lên. Mở terminal tại repository root. Cài dependency
+dev nếu môi trường chưa có pytest:
+
+```bash
+python -m pip install --group dev
+```
+
+### Usage
+
+Chạy bot đơn lẻ:
+
+```bash
+python projects/vuacoc-bot-journey/student_bot/bot.py
+```
+
+Chạy tournament local với ba baseline ở cả hai vị trí A/B:
+
+```bash
+python projects/vuacoc-bot-journey/local_arena/tournament_cli.py
+```
+
+Chạy tests:
+
+```bash
+python -m pytest projects/vuacoc-bot-journey/tests -q
+```
+
+Chi tiết cách đánh giá nằm ở [EVALUATION.md](EVALUATION.md); bản trình bày
+capstone nằm ở [CAPSTONE_REPORT.md](CAPSTONE_REPORT.md). Việc sử dụng AI được
+khai báo trong [AI_USAGE.md](AI_USAGE.md).
 
 ## Hành trình W07–W15
 
@@ -73,7 +112,7 @@ Xem [bảng milestone](MILESTONES.md), [kiến trúc](ARCHITECTURE.md),
 VuaCóc Bot Journey là **flagship capstone track**: một lộ trình nổi bật giúp
 kết nối các tuần thành một câu chuyện phát triển liên tục. Đây không phải lựa
 chọn capstone bắt buộc duy nhất. Mọi capstone vẫn dùng yêu cầu và rubric
-canonical trong [`FINAL_PROJECT.md`](../../FINAL_PROJECT.md).
+canonical trong [FINAL_PROJECT.md](../../FINAL_PROJECT.md).
 
 Python Journey chỉ đi đến nhiều bot độc lập cùng tham gia môi trường chung,
 match, tournament và evaluation. Reinforcement learning, self-play training,

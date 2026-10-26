@@ -1,41 +1,53 @@
 # Student Bot
 
-Chỉnh [`bot.py`](bot.py) để phát triển cùng một decision policy qua khóa học.
-Starter luôn trả local action an toàn `wait`, vì vậy có thể tham gia match ngay
-trước khi bạn thêm rules.
+Week 15 implementation keeps the arena's simple function interface while
+making the decision strategy replaceable.
+
+- `bot.py`: exposes `choose_action(state)` and the small `Bot` composition class.
+- `strategies.py`: validates the state and provides a goal-directed default
+  strategy plus a cautious comparison strategy.
+- `../tests/test_student_bot_strategies.py`: tests normal movement, boundary
+  behavior, malformed state and strategy injection.
 
 > This is a Python Journey teaching contract. It is not the production
 > contract of vuacoc.com.
 
-## Progression
-
-```text
-W07: edit decision function
-W08: reason from structured state
-W09: compare with all three baselines
-later: tests, replay analysis, adapter boundary, strategies
-```
-
 ## Interface
 
 ```python
-def choose_action(state):
+def choose_action(state: dict[str, int]) -> str:
     ...
 ```
 
-Đọc [`../local_arena/CONTRACT.md`](../local_arena/CONTRACT.md) trước khi dùng
-fields hoặc actions. Đây là course-local contract, không phải VuaCóc production
-schema.
+The arena passes a dictionary containing the bot's position, opponent position,
+goal and position bounds. The allowed actions are `left`, `right` and `wait`.
+The default strategy moves one step toward the goal and waits after reaching it.
+Malformed state raises a clear `ValueError`, which can be diagnosed in tests.
 
-## Run a match
+## Strategy composition
 
-Từ repository root:
+```python
+from student_bot.bot import Bot
+from student_bot.strategies import cautious_strategy
 
-```bash
-python projects/vuacoc-bot-journey/local_arena/cli.py --bot-a student --bot-b wait --replay
+bot = Bot(strategy=cautious_strategy)
 ```
 
-W07 evidence cần bot chạy, trả local legal action, giải thích được decision và
-match hoàn tất. Không yêu cầu Student Bot phải thắng.
+The bot core does not need to change when a different strategy is injected.
+The cautious strategy is a teaching example: pausing near an opponent may waste
+turns in this simplified model.
+
+## Run
+
+From the repository root:
+
+```bash
+python projects/vuacoc-bot-journey/student_bot/bot.py
+python projects/vuacoc-bot-journey/local_arena/tournament_cli.py
+python -m pytest projects/vuacoc-bot-journey/tests -q
+```
+
+Read `../local_arena/CONTRACT.md` before relying on state fields or actions.
+This local contract is not the production VuaCóc schema.
 
 > Local Arena is not a security sandbox. Do not run untrusted Python code.

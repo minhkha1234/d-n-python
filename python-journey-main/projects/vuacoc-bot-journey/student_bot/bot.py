@@ -1,15 +1,33 @@
-"""Starter Student Bot for the course-local Line Arena."""
+"""Student bot with an injectable strategy for the course-local Line Arena."""
+
+from collections.abc import Callable
+
+from .strategies import balanced_strategy
+
+Strategy = Callable[[dict[str, int]], str]
+
+
+class Bot:
+    """A small bot that delegates decisions to a supplied strategy."""
+
+    def __init__(self, strategy: Strategy = balanced_strategy) -> None:
+        self.strategy = strategy
+
+    def choose_action(self, state: dict[str, int]) -> str:
+        """Return the action chosen by the configured strategy."""
+        return self.strategy(state)
+
+
+_default_bot = Bot()
 
 
 def choose_action(state: dict[str, int]) -> str:
-    """Return a safe local action while the learner adds decision rules."""
-    # TODO W07: Inspect simple state values and return left, right, or wait.
-    # TODO W08: Explain how structured state changes the decision.
-    return "wait"
+    """Keep the arena's function interface while using the default bot."""
+    return _default_bot.choose_action(state)
 
 
 def main() -> None:
-    """Show that the starter is syntactically valid and runnable."""
+    """Run one small example so the bot can be smoke-tested directly."""
     teaching_state = {
         "turn": 1,
         "max_turns": 6,
