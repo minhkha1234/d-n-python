@@ -39,12 +39,13 @@ turns in this simplified model.
 
 ## Run
 
-From the repository root:
+From the repository root, use:
 
 ```bash
-python projects/vuacoc-bot-journey/student_bot/bot.py
-python projects/vuacoc-bot-journey/local_arena/tournament_cli.py
-python -m pytest projects/vuacoc-bot-journey/tests -q
+cd projects/vuacoc-bot-journey
+python -m student_bot.bot
+python local_arena/tournament_cli.py
+python -m pytest tests -q
 ```
 
 Read `../local_arena/CONTRACT.md` before relying on state fields or actions.
