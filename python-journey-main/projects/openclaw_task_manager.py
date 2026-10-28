@@ -1,10 +1,11 @@
 """
-Dự án mini lấy cảm hứng từ OpenClaw: Trình quản lý công việc bằng Python.
+Ứng dụng quản lý chi tiêu cá nhân bằng Python.
 
-Lưu ý:
-- Đây là ứng dụng độc lập, KHÔNG kết nối trực tiếp tới OpenClaw.
-- Chỉ dùng thư viện chuẩn của Python.
-- Dữ liệu được lưu trong tasks.json cạnh file này.
+Chức năng:
+- Xem lịch sử chi tiêu.
+- Thêm khoản chi mới.
+- Xem tổng tiền đã chi và tổng tiền theo từng danh mục.
+- Lưu dữ liệu trong expenses.json cạnh file này.
 
 Cách chạy:
     python openclaw_task_manager.py
@@ -14,108 +15,128 @@ import json
 from pathlib import Path
 from datetime import datetime
 
-DATA_FILE = Path(__file__).with_name("tasks.json")
+DATA_FILE = Path(__file__).with_name("expenses.json")
 
 
-def load_tasks():
-    """Đọc danh sách công việc; nếu chưa có file thì trả về danh sách rỗng."""
+def load_expenses():
+    """Đọc dữ liệu chi tiêu từ file JSON."""
     if not DATA_FILE.exists():
         return []
 
     try:
-        return json.loads(DATA_FILE.read_text(encoding="utf-8"))
+        data = json.loads(DATA_FILE.read_text(encoding="utf-8"))
+        return data if isinstance(data, list) else []
     except (json.JSONDecodeError, OSError):
-        print("Không đọc được tasks.json. Bắt đầu với danh sách trống.")
+        print("Không đọc được expenses.json. Bắt đầu với danh sách trống.")
         return []
 
 
-def save_tasks(tasks):
-    """Lưu công việc thành JSON để dùng lại ở lần chạy sau."""
+def save_expenses(expenses):
+    """Lưu dữ liệu chi tiêu vào file JSON."""
     DATA_FILE.write_text(
-        json.dumps(tasks, ensure_ascii=False, indent=2),
+        json.dumps(expenses, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
 
 
-def show_tasks(tasks):
-    """Hiển thị tất cả công việc."""
-    if not tasks:
-        print("\nChưa có công việc nào.")
+def format_money(amount):
+    """Định dạng số tiền theo đơn vị VND."""
+    return f"{amount:,.0f} VND"
+
+
+def show_expenses(expenses):
+    """Hiển thị lịch sử các khoản chi."""
+    print("\n===== LỊCH SỬ CHI TIÊU =====")
+    if not expenses:
+        print("Chưa có khoản chi nào.")
         return
 
-    print("\n===== DANH SÁCH CÔNG VIỆC =====")
-    for task in tasks:
-        status = "Hoàn thành" if task["done"] else "Chưa xong"
-        print(f'{task["id"]}. [{status}] {task["title"]}')
-        print(f'   Tạo lúc: {task["created_at"]}')
+    for item in expenses:
+        print(
+            f'#{item["id"]} | {item["date"]} | {item["category"]} | '
+            f'{format_money(item["amount"])}'
+        )
+        print(f'   Ghi chú: {item["note"]}')
 
 
-def add_task(tasks):
-    """Thêm một công việc mới."""
-    title = input("Nhập tên công việc: ").strip()
-    if not title:
-        print("Tên công việc không được để trống.")
-        return
-
-    next_id = max((task["id"] for task in tasks), default=0) + 1
-    tasks.append(
-        {
-            "id": next_id,
-            "title": title,
-            "done": False,
-            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
-        }
-    )
-    save_tasks(tasks)
-    print("Đã thêm công việc.")
-
-
-def complete_task(tasks):
-    """Đánh dấu một công việc là hoàn thành."""
-    show_tasks(tasks)
-    if not tasks:
-        return
+def add_expense(expenses):
+    """Thêm một khoản chi mới."""
+    raw_amount = input("Nhập số tiền đã chi (VND): ").strip().replace(",", "")
 
     try:
-        task_id = int(input("Nhập ID công việc đã hoàn thành: "))
+        amount = float(raw_amount)
+        if amount <= 0:
+            print("Số tiền phải lớn hơn 0.")
+            return
     except ValueError:
-        print("ID phải là một số nguyên.")
+        print("Số tiền không hợp lệ. Vui lòng nhập một con số.")
         return
 
-    for task in tasks:
-        if task["id"] == task_id:
-            task["done"] = True
-            save_tasks(tasks)
-            print("Đã cập nhật trạng thái công việc.")
-            return
+    category = input(
+        "Danh mục (ví dụ: Ăn uống, Đi lại, Học tập, Giải trí): "
+    ).strip()
+    note = input("Ghi chú: ").strip()
 
-    print("Không tìm thấy công việc có ID đó.")
+    next_id = max((item["id"] for item in expenses), default=0) + 1
+    expenses.append({
+        "id": next_id,
+        "date": datetime.now().strftime("%Y-%m-%d"),
+        "amount": amount,
+        "category": category or "Khác",
+        "note": note or "Không có ghi chú",
+    })
+
+    save_expenses(expenses)
+    print("Đã lưu khoản chi thành công.")
+
+
+def show_summary(expenses):
+    """Hiển thị tổng chi tiêu và tổng tiền theo danh mục."""
+    print("\n===== TỔNG KẾT CHI TIÊU =====")
+    if not expenses:
+        print("Chưa có dữ liệu để tổng kết.")
+        return
+
+    total = sum(float(item["amount"]) for item in expenses)
+    print(f"Số khoản chi: {len(expenses)}")
+    print(f"Tổng tiền đã chi: {format_money(total)}")
+
+    category_totals = {}
+    for item in expenses:
+        category = item.get("category", "Khác")
+        category_totals[category] = (
+            category_totals.get(category, 0) + float(item["amount"])
+        )
+
+    print("\nChi tiêu theo danh mục:")
+    for category, amount in sorted(category_totals.items()):
+        print(f"- {category}: {format_money(amount)}")
 
 
 def main():
-    """Vòng lặp menu chính của chương trình."""
-    tasks = load_tasks()
+    """Hiển thị menu và xử lý lựa chọn của người dùng."""
+    expenses = load_expenses()
 
     while True:
-        print("\n=== OPENCLAW-INSPIRED TASK MANAGER ===")
-        print("1. Xem công việc")
-        print("2. Thêm công việc")
-        print("3. Đánh dấu hoàn thành")
+        print("\n===== QUẢN LÝ CHI TIÊU CÁ NHÂN =====")
+        print("1. Xem lịch sử chi tiêu")
+        print("2. Thêm khoản chi")
+        print("3. Xem tổng kết chi tiêu")
         print("0. Thoát")
 
         choice = input("Chọn chức năng: ").strip()
 
         if choice == "1":
-            show_tasks(tasks)
+            show_expenses(expenses)
         elif choice == "2":
-            add_task(tasks)
+            add_expense(expenses)
         elif choice == "3":
-            complete_task(tasks)
+            show_summary(expenses)
         elif choice == "0":
-            print("Tạm biệt!")
+            print("Đã thoát chương trình.")
             break
         else:
-            print("Lựa chọn không hợp lệ. Hãy chọn 0, 1, 2 hoặc 3.")
+            print("Lựa chọn không hợp lệ. Hãy nhập 0, 1, 2 hoặc 3.")
 
 
 if __name__ == "__main__":
