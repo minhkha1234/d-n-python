@@ -5,6 +5,8 @@ Chức năng:
 - Xem danh sách công việc.
 - Thêm công việc mới.
 - Đánh dấu công việc đã hoàn thành.
+- Xóa một công việc theo ID.
+- Reset toàn bộ danh sách công việc (có xác nhận).
 - Lưu dữ liệu trong tasks.json cạnh file này.
 
 Cách chạy:
@@ -96,6 +98,54 @@ def complete_task(tasks):
     print("Không tìm thấy công việc có ID đó.")
 
 
+def delete_task(tasks):
+    """Xóa một công việc theo ID."""
+    if not tasks:
+        print("\nKhông có công việc nào để xóa.")
+        return
+
+    show_tasks(tasks)
+    try:
+        task_id = int(input("Nhập ID công việc muốn xóa: ").strip())
+    except ValueError:
+        print("ID phải là một số nguyên.")
+        return
+
+    for index, task in enumerate(tasks):
+        if task.get("id") == task_id:
+            confirm = input(
+                f'Bạn có chắc muốn xóa "{task["title"]}"? Nhập CÓ để xác nhận: '
+            ).strip().upper()
+            if confirm == "CÓ":
+                deleted_task = tasks.pop(index)
+                save_tasks(tasks)
+                print(f'Đã xóa công việc: {deleted_task["title"]}')
+            else:
+                print("Đã hủy thao tác xóa.")
+            return
+
+    print("Không tìm thấy công việc có ID đó.")
+
+
+def reset_tasks(tasks):
+    """Xóa toàn bộ công việc sau khi người dùng xác nhận."""
+    if not tasks:
+        print("\nDanh sách công việc đã trống.")
+        return
+
+    confirm = input(
+        f"Bạn sắp xóa toàn bộ {len(tasks)} công việc. "
+        "Nhập RESET để xác nhận: "
+    ).strip()
+
+    if confirm == "RESET":
+        tasks.clear()
+        save_tasks(tasks)
+        print("Đã reset danh sách công việc.")
+    else:
+        print("Đã hủy thao tác reset. Danh sách được giữ nguyên.")
+
+
 def main():
     """Hiển thị menu và xử lý lựa chọn của người dùng."""
     tasks = load_tasks()
@@ -105,6 +155,8 @@ def main():
         print("1. Xem danh sách công việc")
         print("2. Thêm công việc")
         print("3. Đánh dấu công việc hoàn thành")
+        print("4. Xóa một công việc")
+        print("5. Reset toàn bộ công việc")
         print("0. Thoát")
 
         choice = input("Chọn chức năng: ").strip()
@@ -115,11 +167,15 @@ def main():
             add_task(tasks)
         elif choice == "3":
             complete_task(tasks)
+        elif choice == "4":
+            delete_task(tasks)
+        elif choice == "5":
+            reset_tasks(tasks)
         elif choice == "0":
             print("Đã thoát chương trình.")
             break
         else:
-            print("Lựa chọn không hợp lệ. Hãy nhập 0, 1, 2 hoặc 3.")
+            print("Lựa chọn không hợp lệ. Hãy nhập 0, 1, 2, 3, 4, 5.")
 
 
 if __name__ == "__main__":
