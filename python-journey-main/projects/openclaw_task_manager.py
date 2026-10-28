@@ -5,7 +5,7 @@ Chức năng:
 - Xem danh sách công việc.
 - Thêm công việc mới.
 - Đánh dấu công việc đã hoàn thành.
-- Xóa một công việc theo ID.
+- Xóa một công việc theo ID sau khi xác nhận.
 - Lưu dữ liệu trong tasks.json cạnh file này.
 
 Cách chạy:
@@ -98,7 +98,7 @@ def complete_task(tasks):
 
 
 def delete_task(tasks):
-    """Xóa một công việc theo ID."""
+    """Xóa một công việc sau khi người dùng xác nhận."""
     if not tasks:
         print("\nKhông có công việc nào để xóa.")
         return
@@ -112,15 +112,17 @@ def delete_task(tasks):
 
     for index, task in enumerate(tasks):
         if task.get("id") == task_id:
+            print(f'\nBạn đã chọn công việc: "{task["title"]}"')
             confirm = input(
-                f'Bạn có chắc muốn xóa "{task["title"]}"? Nhập CÓ để xác nhận: '
+                "Bạn có muốn xóa công việc này không? (Nhập CÓ hoặc KHÔNG): "
             ).strip().upper()
+
             if confirm == "CÓ":
                 deleted_task = tasks.pop(index)
                 save_tasks(tasks)
                 print(f'Đã xóa công việc: {deleted_task["title"]}')
             else:
-                print("Đã hủy thao tác xóa.")
+                print("Đã hủy thao tác. Công việc vẫn được giữ nguyên.")
             return
 
     print("Không tìm thấy công việc có ID đó.")
