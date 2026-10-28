@@ -4,7 +4,7 @@
 Chức năng:
 - Xem lịch sử chi tiêu.
 - Thêm khoản chi mới.
-- Xem tổng tiền đã chi và tổng tiền theo từng danh mục.
+- Xem tổng số tiền đã chi tiêu và tổng tiền theo từng danh mục.
 - Lưu dữ liệu trong expenses.json cạnh file này.
 
 Cách chạy:
@@ -91,15 +91,16 @@ def add_expense(expenses):
 
 
 def show_summary(expenses):
-    """Hiển thị tổng chi tiêu và tổng tiền theo danh mục."""
-    print("\n===== TỔNG KẾT CHI TIÊU =====")
-    if not expenses:
-        print("Chưa có dữ liệu để tổng kết.")
-        return
-
+    """Hiển thị tổng số tiền đã chi và tổng tiền theo từng danh mục."""
     total = sum(float(item["amount"]) for item in expenses)
+
+    print("\n===== TỔNG KẾT CHI TIÊU =====")
     print(f"Số khoản chi: {len(expenses)}")
-    print(f"Tổng tiền đã chi: {format_money(total)}")
+    print(f"TỔNG SỐ TIỀN ĐÃ CHI TIÊU: {format_money(total)}")
+
+    if not expenses:
+        print("Chưa có khoản chi nào để thống kê theo danh mục.")
+        return
 
     category_totals = {}
     for item in expenses:
@@ -121,7 +122,7 @@ def main():
         print("\n===== QUẢN LÝ CHI TIÊU CÁ NHÂN =====")
         print("1. Xem lịch sử chi tiêu")
         print("2. Thêm khoản chi")
-        print("3. Xem tổng kết chi tiêu")
+        print("3. Xem tổng số tiền đã chi tiêu")
         print("0. Thoát")
 
         choice = input("Chọn chức năng: ").strip()
