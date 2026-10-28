@@ -1,12 +1,13 @@
 """
-Ứng dụng quản lý công việc bằng Python.
+Ứng dụng quản lý thời gian cá nhân bằng Python.
 
 Chức năng:
-- Xem danh sách công việc.
-- Thêm công việc mới.
-- Đánh dấu công việc đã hoàn thành.
-- Xóa một công việc theo ID sau khi xác nhận.
-- Lưu dữ liệu trong tasks.json cạnh file này.
+- Xem lịch trình theo ngày và giờ.
+- Thêm lịch trình với ngày, giờ bắt đầu và thời lượng.
+- Đánh dấu lịch trình đã hoàn thành.
+- Xóa một lịch trình sau khi xác nhận.
+- Thống kê thời lượng đã lên lịch và đã hoàn thành.
+- Lưu dữ liệu trong time_schedule.json cạnh file này.
 
 Cách chạy:
     python openclaw_task_manager.py
@@ -14,147 +15,168 @@ Cách chạy:
 
 import json
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, date
 
-DATA_FILE = Path(__file__).with_name("tasks.json")
+DATA_FILE = Path(__file__).with_name("time_schedule.json")
 
 
-def load_tasks():
-    """Đọc danh sách công việc từ file JSON."""
+def load_schedule():
     if not DATA_FILE.exists():
         return []
-
     try:
         data = json.loads(DATA_FILE.read_text(encoding="utf-8"))
         return data if isinstance(data, list) else []
     except (json.JSONDecodeError, OSError):
-        print("Không đọc được tasks.json. Bắt đầu với danh sách trống.")
+        print("Không đọc được time_schedule.json. Bắt đầu với lịch trống.")
         return []
 
 
-def save_tasks(tasks):
-    """Lưu danh sách công việc vào file JSON."""
+def save_schedule(schedule):
     DATA_FILE.write_text(
-        json.dumps(tasks, ensure_ascii=False, indent=2),
+        json.dumps(schedule, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
 
 
-def show_tasks(tasks):
-    """Hiển thị danh sách công việc."""
-    print("\n===== DANH SÁCH CÔNG VIỆC =====")
-    if not tasks:
-        print("Chưa có công việc nào.")
+def show_schedule(schedule):
+    print("\n===== LỊCH TRÌNH CỦA BẠN =====")
+    if not schedule:
+        print("Chưa có lịch trình nào.")
         return
+    for item in sorted(schedule, key=lambda x: (x.get("date", ""), x.get("time", ""))):
+        status = "Đã hoàn thành" if item.get("done", False) else "Chưa hoàn thành"
+        print(
+            f'#{item["id"]}. [{status}] {item["title"]}\n'
+            f'   Thời gian: {item.get("date", "Chưa đặt")} '
+            f'{item.get("time", "")} | {item.get("duration", 0)} phút'
+        )
 
-    for task in tasks:
-        status = "Hoàn thành" if task.get("done", False) else "Chưa hoàn thành"
-        print(f'#{task["id"]}. [{status}] {task["title"]}')
-        print(f'   Ngày tạo: {task.get("created_at", "Không rõ")}')
 
-
-def add_task(tasks):
-    """Thêm công việc mới."""
-    title = input("Nhập tên công việc: ").strip()
+def add_schedule(schedule):
+    title = input("Tên hoạt động: ").strip()
     if not title:
-        print("Tên công việc không được để trống.")
+        print("Tên hoạt động không được để trống.")
         return
 
-    next_id = max((int(task.get("id", 0)) for task in tasks), default=0) + 1
-    tasks.append({
+    date_text = input("Ngày (YYYY-MM-DD, Enter để dùng hôm nay): ").strip()
+    if not date_text:
+        date_text = date.today().isoformat()
+    try:
+        datetime.strptime(date_text, "%Y-%m-%d")
+    except ValueError:
+        print("Ngày không hợp lệ. Hãy nhập theo dạng YYYY-MM-DD.")
+        return
+
+    time_text = input("Giờ bắt đầu (HH:MM): ").strip()
+    try:
+        datetime.strptime(time_text, "%H:%M")
+    except ValueError:
+        print("Giờ không hợp lệ. Hãy nhập theo dạng HH:MM.")
+        return
+
+    duration_text = input("Thời lượng dự kiến (phút): ").strip()
+    try:
+        duration = int(duration_text)
+        if duration <= 0:
+            raise ValueError
+    except ValueError:
+        print("Thời lượng phải là số phút lớn hơn 0.")
+        return
+
+    next_id = max((int(item.get("id", 0)) for item in schedule), default=0) + 1
+    schedule.append({
         "id": next_id,
         "title": title,
+        "date": date_text,
+        "time": time_text,
+        "duration": duration,
         "done": False,
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
     })
-    save_tasks(tasks)
-    print("Đã thêm công việc thành công.")
+    save_schedule(schedule)
+    print("Đã thêm lịch trình.")
 
 
-def complete_task(tasks):
-    """Đánh dấu công việc là hoàn thành theo ID."""
-    if not tasks:
-        print("\nChưa có công việc nào để cập nhật.")
+def complete_schedule(schedule):
+    if not schedule:
+        print("Chưa có lịch trình nào.")
         return
-
-    show_tasks(tasks)
+    show_schedule(schedule)
     try:
-        task_id = int(input("Nhập ID công việc đã hoàn thành: ").strip())
+        item_id = int(input("Nhập ID lịch trình đã hoàn thành: ").strip())
     except ValueError:
-        print("ID phải là một số nguyên.")
+        print("ID phải là số nguyên.")
         return
-
-    for task in tasks:
-        if task.get("id") == task_id:
-            if task.get("done", False):
-                print("Công việc này đã hoàn thành trước đó.")
-                return
-            task["done"] = True
-            save_tasks(tasks)
-            print("Đã đánh dấu công việc hoàn thành.")
+    for item in schedule:
+        if item.get("id") == item_id:
+            item["done"] = True
+            save_schedule(schedule)
+            print("Đã cập nhật trạng thái.")
             return
+    print("Không tìm thấy ID đó.")
 
-    print("Không tìm thấy công việc có ID đó.")
 
-
-def delete_task(tasks):
-    """Xóa một công việc sau khi người dùng xác nhận."""
-    if not tasks:
-        print("\nKhông có công việc nào để xóa.")
+def delete_schedule(schedule):
+    if not schedule:
+        print("Không có lịch trình để xóa.")
         return
-
-    show_tasks(tasks)
+    show_schedule(schedule)
     try:
-        task_id = int(input("Nhập ID công việc muốn xóa: ").strip())
+        item_id = int(input("Nhập ID lịch trình muốn xóa: ").strip())
     except ValueError:
-        print("ID phải là một số nguyên.")
+        print("ID phải là số nguyên.")
         return
-
-    for index, task in enumerate(tasks):
-        if task.get("id") == task_id:
-            print(f'\nBạn đã chọn công việc: "{task["title"]}"')
-            confirm = input(
-                "Bạn có muốn xóa công việc này không? (Nhập CÓ hoặc KHÔNG): "
-            ).strip().upper()
-
+    for index, item in enumerate(schedule):
+        if item.get("id") == item_id:
+            print(f'Bạn đã chọn: "{item["title"]}"')
+            confirm = input("Bạn có chắc muốn xóa không? (CÓ/KHÔNG): ").strip().upper()
             if confirm == "CÓ":
-                deleted_task = tasks.pop(index)
-                save_tasks(tasks)
-                print(f'Đã xóa công việc: {deleted_task["title"]}')
+                removed = schedule.pop(index)
+                save_schedule(schedule)
+                print(f'Đã xóa lịch trình "{removed["title"]}".')
             else:
-                print("Đã hủy thao tác. Công việc vẫn được giữ nguyên.")
+                print("Đã hủy. Lịch trình vẫn được giữ nguyên.")
             return
+    print("Không tìm thấy ID đó.")
 
-    print("Không tìm thấy công việc có ID đó.")
+
+def show_summary(schedule):
+    total = sum(int(item.get("duration", 0)) for item in schedule)
+    done = sum(int(item.get("duration", 0)) for item in schedule if item.get("done", False))
+    pending = total - done
+    print("\n===== THỐNG KÊ THỜI GIAN =====")
+    print(f"Số lịch trình: {len(schedule)}")
+    print(f"Tổng thời lượng đã lên lịch: {total} phút ({total // 60} giờ {total % 60} phút)")
+    print(f"Thời lượng hoạt động hoàn thành: {done} phút")
+    print(f"Thời lượng chưa hoàn thành: {pending} phút")
 
 
 def main():
-    """Hiển thị menu và xử lý lựa chọn của người dùng."""
-    tasks = load_tasks()
-
+    schedule = load_schedule()
     while True:
-        print("\n===== QUẢN LÝ CÔNG VIỆC CÁ NHÂN =====")
-        print("1. Xem danh sách công việc")
-        print("2. Thêm công việc")
-        print("3. Đánh dấu công việc hoàn thành")
-        print("4. Xóa một công việc")
+        print("\n===== QUẢN LÝ THỜI GIAN CÁ NHÂN =====")
+        print("1. Xem lịch trình")
+        print("2. Thêm lịch trình")
+        print("3. Đánh dấu lịch trình hoàn thành")
+        print("4. Xóa một lịch trình")
+        print("5. Xem thống kê thời gian")
         print("0. Thoát")
-
         choice = input("Chọn chức năng: ").strip()
-
         if choice == "1":
-            show_tasks(tasks)
+            show_schedule(schedule)
         elif choice == "2":
-            add_task(tasks)
+            add_schedule(schedule)
         elif choice == "3":
-            complete_task(tasks)
+            complete_schedule(schedule)
         elif choice == "4":
-            delete_task(tasks)
+            delete_schedule(schedule)
+        elif choice == "5":
+            show_summary(schedule)
         elif choice == "0":
             print("Đã thoát chương trình.")
             break
         else:
-            print("Lựa chọn không hợp lệ. Hãy nhập 0, 1, 2, 3 hoặc 4.")
+            print("Lựa chọn không hợp lệ. Hãy nhập 0, 1, 2, 3, 4, 5 hoặc 0.")
 
 
 if __name__ == "__main__":
