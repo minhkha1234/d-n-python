@@ -6,7 +6,6 @@ Chức năng:
 - Thêm công việc mới.
 - Đánh dấu công việc đã hoàn thành.
 - Xóa một công việc theo ID.
-- Reset toàn bộ danh sách công việc (có xác nhận).
 - Lưu dữ liệu trong tasks.json cạnh file này.
 
 Cách chạy:
@@ -127,25 +126,6 @@ def delete_task(tasks):
     print("Không tìm thấy công việc có ID đó.")
 
 
-def reset_tasks(tasks):
-    """Xóa toàn bộ công việc sau khi người dùng xác nhận."""
-    if not tasks:
-        print("\nDanh sách công việc đã trống.")
-        return
-
-    confirm = input(
-        f"Bạn sắp xóa toàn bộ {len(tasks)} công việc. "
-        "Nhập RESET để xác nhận: "
-    ).strip()
-
-    if confirm == "RESET":
-        tasks.clear()
-        save_tasks(tasks)
-        print("Đã reset danh sách công việc.")
-    else:
-        print("Đã hủy thao tác reset. Danh sách được giữ nguyên.")
-
-
 def main():
     """Hiển thị menu và xử lý lựa chọn của người dùng."""
     tasks = load_tasks()
@@ -156,7 +136,6 @@ def main():
         print("2. Thêm công việc")
         print("3. Đánh dấu công việc hoàn thành")
         print("4. Xóa một công việc")
-        print("5. Reset toàn bộ công việc")
         print("0. Thoát")
 
         choice = input("Chọn chức năng: ").strip()
@@ -169,13 +148,11 @@ def main():
             complete_task(tasks)
         elif choice == "4":
             delete_task(tasks)
-        elif choice == "5":
-            reset_tasks(tasks)
         elif choice == "0":
             print("Đã thoát chương trình.")
             break
         else:
-            print("Lựa chọn không hợp lệ. Hãy nhập 0, 1, 2, 3, 4, 5.")
+            print("Lựa chọn không hợp lệ. Hãy nhập 0, 1, 2, 3 hoặc 4.")
 
 
 if __name__ == "__main__":
