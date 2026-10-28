@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "date": "2026-10-28",
+    "amount": 25000,
+    "category": "Ăn uống",
+    "note": "Ăn sáng"
+  },
+  {
+    "id": 2,
+    "date": "2026-10-28",
+    "amount": 15000,
+    "category": "Đi lại",
+    "note": "Gửi xe"
+  },
+  {
+    "id": 3,
+    "date": "2026-10-27",
+    "amount": 40000,
+    "category": "Học tập",
+    "note": "Vở và bút"
+  },
+  {
+    "id": 4,
+    "date": "2026-10-27",
+    "amount": 30000,
+    "category": "Ăn uống",
+    "note": "Ăn trưa"
+  }
+]
