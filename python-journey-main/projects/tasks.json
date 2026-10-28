@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "title": "Ôn tập class và object trong Python",
+    "done": false,
+    "created_at": "2026-10-28 12:00"
+  },
+  {
+    "id": 2,
+    "title": "Hoàn thành bài tập Python Week 15",
+    "done": false,
+    "created_at": "2026-10-28 12:00"
+  },
+  {
+    "id": 3,
+    "title": "Đọc và hiểu file openclaw_task_manager.py",
+    "done": false,
+    "created_at": "2026-10-28 12:00"
+  },
+  {
+    "id": 4,
+    "title": "Chạy thử chức năng xem danh sách công việc",
+    "done": false,
+    "created_at": "2026-10-28 12:00"
+  },
+  {
+    "id": 5,
+    "title": "Thử thêm một công việc mới và kiểm tra tasks.json",
+    "done": false,
+    "created_at": "2026-10-28 12:00"
+  },
+  {
+    "id": 6,
+    "title": "Thử đánh dấu một công việc đã hoàn thành",
+    "done": false,
+    "created_at": "2026-10-28 12:00"
+  },
+  {
+    "id": 7,
+    "title": "Viết README hướng dẫn cách chạy dự án",
+    "done": false,
+    "created_at": "2026-10-28 12:00"
+  }
+]
